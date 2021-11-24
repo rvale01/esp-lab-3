@@ -20,6 +20,14 @@
 #define LED2_GPIO_CLK_ENABLE()           __HAL_RCC_GPIOB_CLK_ENABLE()
 #define LED2_GPIO_CLK_DISABLE()          __HAL_RCC_GPIOB_CLK_DISABLE()
 
+//declaration for LED1
+
+#define LED1_PIN			GPIO_PIN_5
+#define LED1_GPIO_PORT                  GPIOA
+#define LED1_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOA_CLK_ENABLE()
+#define LED1_GPIO_CLK_DISABLE()         __HAL_RCC_GPIOA_CLK_DISABLE()
+
+
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 void LED2_Init(void);
@@ -28,6 +36,16 @@ void LED2_Off(void);
 void LED2_DeInit(void);
 void LED2_Toggle(void);
 
+void LED1_Init(void);
+void LED1_On(void);
+void LED1_Off(void);
+void LED1_DeInit(void);
+void LED1_Toggle(void);
+
+void task1a(void);
+void task1b(void);
+void task2(void);
+void task3(void);
 
 int main(void)
 {
@@ -45,27 +63,15 @@ int main(void)
   /* Configure the System clock to have a frequency of 80 MHz */
   SystemClock_Config();
 
-  /* Configure the User LED */
-<<<<<<< HEAD
+  /* Configure the User LEDs */
+
   LED2_Init();
-  /* turn the LED on */
-  LED2_On();
-=======
-  BSP_LED_Init(LED2); 
-  BSP_LED_Init(LED1); 
+  LED1_Init();
 
-  /* turn the LED on */
-    BSP_LED_On(LED2);
-    BSP_LED_On(LED1);
-
->>>>>>> bd94e3207a170b1fc6d2fcff38a6f7820c63f9be
     /* loop for ever */
     while (1)
       {
-	LED2_On();
-	HAL_Delay(1000);  //delay for 1000 milliseconds - namely 1 second
-	LED2_Off();
-	HAL_Delay(1000);  //delay for 1000 milliseconds - namely 1 second
+	task3();
       }
 
 }
@@ -168,3 +174,90 @@ void LED2_Toggle(void)
   HAL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
 }
 
+//led_1
+void LED1_Init(void)
+{
+
+   GPIO_InitTypeDef  gpio_init_structure;
+
+  LED1_GPIO_CLK_ENABLE();
+  /* Configure the GPIO_LED pin */
+  gpio_init_structure.Pin   = LED1_PIN;
+  gpio_init_structure.Mode  = GPIO_MODE_OUTPUT_PP;
+  gpio_init_structure.Pull  = GPIO_NOPULL;
+  gpio_init_structure.Speed = GPIO_SPEED_FREQ_HIGH;
+
+  HAL_GPIO_Init(LED1_GPIO_PORT, &gpio_init_structure);
+}
+
+
+void LED1_DeInit()
+{
+  GPIO_InitTypeDef  gpio_init_structure;
+
+  /* DeInit the GPIO_LED pin */
+  gpio_init_structure.Pin = LED1_PIN;
+
+  /* Turn off LED */
+  HAL_GPIO_WritePin(LED1_GPIO_PORT, LED2_PIN, GPIO_PIN_RESET);
+  HAL_GPIO_DeInit(LED1_GPIO_PORT, gpio_init_structure.Pin);
+}
+
+
+/*
+
+Turn LED1 on
+
+*/
+void LED1_On(void)
+{
+  HAL_GPIO_WritePin(LED1_GPIO_PORT, LED1_PIN, GPIO_PIN_SET);
+}
+
+/* 
+turn LED1 off
+*/
+
+void LED1_Off(void)
+{
+  HAL_GPIO_WritePin(LED1_GPIO_PORT, LED1_PIN, GPIO_PIN_RESET);
+}
+
+void LED1_Toggle(void)
+{
+  HAL_GPIO_TogglePin(LED1_GPIO_PORT, LED1_PIN);
+}
+
+
+
+//tasks from worksheet 3
+void task1a(void){
+        LED2_On();
+        HAL_Delay(3000);  //delay for 3000 milliseconds - namely 3 second
+        LED2_Off();
+        HAL_Delay(1000);  //delay for 1000 milliseconds - namely 1 second
+
+}
+
+void task1b(void){
+	LED2_Toggle();
+        HAL_Delay(3000);  //delay for 3000 milliseconds - namely 3 second
+        LED2_Toggle();
+        HAL_Delay(1000);
+}
+
+void task2(void){
+	LED1_On();
+        HAL_Delay(3000);  //delay for 3000 milliseconds - namely 3 second
+        LED1_Off();
+        HAL_Delay(1000);
+}
+
+void task3(void){
+	LED1_On();
+	HAL_Delay(1000);
+	LED1_Off();
+	LED2_On();
+	HAL_Delay(1000);
+	LED2_Off();
+}
