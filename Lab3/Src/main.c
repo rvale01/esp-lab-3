@@ -22,10 +22,17 @@
 
 //declaration for LED1
 
-#define LED1_PIN			GPIO_PIN_5
+#define LED1_PIN                        GPIO_PIN_5
 #define LED1_GPIO_PORT                  GPIOA
 #define LED1_GPIO_CLK_ENABLE()          __HAL_RCC_GPIOA_CLK_ENABLE()
 #define LED1_GPIO_CLK_DISABLE()         __HAL_RCC_GPIOA_CLK_DISABLE()
+
+//declaration for the GPIO pins for the wakeup Button
+
+#define BLUE_BUTTON_PIN                   GPIO_PIN_13
+#define BLUE_BUTTON_GPIO_PORT             GPIOC
+#define BLUE_BUTTON_GPIO_CLK_ENABLE()     __HAL_RCC_GPIOC_CLK_ENABLE()
+#define BLUE_BUTTON_GPIO_CLK_DISABLE()    __HAL_RCC_GPIOC_CLK_DISABLE()
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -34,7 +41,6 @@ void LED2_Init(void);
 void LED2_On(void);
 void LED2_Off(void);
 void LED2_DeInit(void);
-void LED2_Toggle(void);
 
 void LED1_Init(void);
 void LED1_On(void);
@@ -42,10 +48,13 @@ void LED1_Off(void);
 void LED1_DeInit(void);
 void LED1_Toggle(void);
 
-void task1a(void);
-void task1b(void);
-void task2(void);
-void task3(void);
+void exercise1(void);
+void exercise2(void);
+
+void Blue_PB_Init(void);
+void Blue_PB_DeInit(void);
+uint32_t Blue_PB_GetState(void);
+uint32_t but_state;
 
 int main(void)
 {
@@ -64,15 +73,12 @@ int main(void)
   SystemClock_Config();
 
   /* Configure the User LEDs */
-
   LED2_Init();
   LED1_Init();
+  /*configure the blue button */
+  Blue_PB_Init();
 
-    /* loop for ever */
-    while (1)
-      {
-	task3();
-      }
+  exercise2();
 
 }
 
@@ -169,12 +175,54 @@ void LED2_Off(void)
   HAL_GPIO_WritePin(LED2_GPIO_PORT, LED2_PIN, GPIO_PIN_RESET);
 }
 
-void LED2_Toggle(void)
+/*
+initialise the blue button
+*/
+
+void Blue_PB_Init()
 {
-  HAL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
+  GPIO_InitTypeDef gpio_init_structure;
+  
+  /* Enable the BUTTON clock */
+  BLUE_BUTTON_GPIO_CLK_ENABLE();
+    
+  /* Configure Button pin as input */
+  gpio_init_structure.Pin = BLUE_BUTTON_PIN;
+  gpio_init_structure.Mode = GPIO_MODE_INPUT;
+  gpio_init_structure.Pull = GPIO_PULLUP;
+  gpio_init_structure.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(BLUE_BUTTON_GPIO_PORT, &gpio_init_structure);
 }
 
-//led_1
+/*
+
+de-init blue button
+*/
+void Blue_PB_DeInit()
+{
+  GPIO_InitTypeDef gpio_init_structure;
+
+  gpio_init_structure.Pin = BLUE_BUTTON_PIN;
+  HAL_GPIO_DeInit(BLUE_BUTTON_GPIO_PORT, gpio_init_structure.Pin);
+}
+
+/*
+Blue button get state
+*/
+uint32_t Blue_PB_GetState()
+{
+  return HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_PORT, BLUE_BUTTON_PIN);
+}
+
+void exercise(){
+                but_state=Blue_PB_GetState();
+        if (but_state == GPIO_PIN_RESET)
+          LED2_On();
+        else
+          LED2_Off();
+
+}
+
 void LED1_Init(void)
 {
 
@@ -214,7 +262,7 @@ void LED1_On(void)
   HAL_GPIO_WritePin(LED1_GPIO_PORT, LED1_PIN, GPIO_PIN_SET);
 }
 
-/* 
+/*
 turn LED1 off
 */
 
@@ -228,36 +276,33 @@ void LED1_Toggle(void)
   HAL_GPIO_TogglePin(LED1_GPIO_PORT, LED1_PIN);
 }
 
-
-
-//tasks from worksheet 3
-void task1a(void){
-        LED2_On();
-        HAL_Delay(3000);  //delay for 3000 milliseconds - namely 3 second
-        LED2_Off();
-        HAL_Delay(1000);  //delay for 1000 milliseconds - namely 1 second
-
+void exercise1(void)
+{
+ while (1)
+      {
+        but_state=Blue_PB_GetState();
+        if (but_state == GPIO_PIN_RESET)
+          LED2_On();
+        else
+          LED2_Off();
+        //HAL_Delay(1000);  //delay for 1000 milliseconds - namely 1 second
+      }
 }
 
-void task1b(void){
-	LED2_Toggle();
-        HAL_Delay(3000);  //delay for 3000 milliseconds - namely 3 second
-        LED2_Toggle();
-        HAL_Delay(1000);
+void exercise2(void)
+{
+ while (1)
+      {
+        but_state=Blue_PB_GetState();
+        if (but_state == GPIO_PIN_RESET)
+    	{
+          LED2_On();
+	  LED1_Off();
+	}else{
+          LED1_On();
+	  LED2_Off();
+        //HAL_Delay(1000);  //delay for 1000 milliseconds - namely 1 second
+	}
+	}
 }
 
-void task2(void){
-	LED1_On();
-        HAL_Delay(3000);  //delay for 3000 milliseconds - namely 3 second
-        LED1_Off();
-        HAL_Delay(1000);
-}
-
-void task3(void){
-	LED1_On();
-	HAL_Delay(1000);
-	LED1_Off();
-	LED2_On();
-	HAL_Delay(1000);
-	LED2_Off();
-}
