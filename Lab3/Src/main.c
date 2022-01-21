@@ -41,6 +41,7 @@ void LED2_Init(void);
 void LED2_On(void);
 void LED2_Off(void);
 void LED2_DeInit(void);
+void LED2_Toggle(void);
 
 void LED1_Init(void);
 void LED1_On(void);
@@ -48,6 +49,8 @@ void LED1_Off(void);
 void LED1_DeInit(void);
 void LED1_Toggle(void);
 
+void exerciseExtra(void);
+void exercisePart1(void);
 void exercise1(void);
 void exercise2(void);
 
@@ -175,6 +178,11 @@ void LED2_Off(void)
   HAL_GPIO_WritePin(LED2_GPIO_PORT, LED2_PIN, GPIO_PIN_RESET);
 }
 
+void LED2_Toggle(void)
+{
+  HAL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
+}
+
 /*
 initialise the blue button
 */
@@ -212,15 +220,6 @@ Blue button get state
 uint32_t Blue_PB_GetState()
 {
   return HAL_GPIO_ReadPin(BLUE_BUTTON_GPIO_PORT, BLUE_BUTTON_PIN);
-}
-
-void exercise(){
-                but_state=Blue_PB_GetState();
-        if (but_state == GPIO_PIN_RESET)
-          LED2_On();
-        else
-          LED2_Off();
-
 }
 
 void LED1_Init(void)
@@ -276,6 +275,27 @@ void LED1_Toggle(void)
   HAL_GPIO_TogglePin(LED1_GPIO_PORT, LED1_PIN);
 }
 
+void exercisePart1(void)
+{
+  while (1)
+  {
+    LED2_Toggle();
+    HAL_Delay(2000);  //delay changed as requested by exercise 1
+  }
+}
+
+void exerciseExtra(void)
+{
+  LED2_On();
+  LED1_Off();
+  while (1)
+  {
+    LED2_Toggle();
+    HAL_Delay(2000);  //delay changed as requested by exercise 1
+    LED1_Toggle();
+  }
+}
+
 void exercise1(void)
 {
  while (1)
@@ -285,24 +305,22 @@ void exercise1(void)
           LED2_On();
         else
           LED2_Off();
-        //HAL_Delay(1000);  //delay for 1000 milliseconds - namely 1 second
       }
 }
 
 void exercise2(void)
 {
  while (1)
-      {
-        but_state=Blue_PB_GetState();
-        if (but_state == GPIO_PIN_RESET)
-    	{
-          LED2_On();
-	  LED1_Off();
-	}else{
-          LED1_On();
-	  LED2_Off();
-        //HAL_Delay(1000);  //delay for 1000 milliseconds - namely 1 second
-	}
+    {
+      but_state=Blue_PB_GetState();
+      if (but_state == GPIO_PIN_RESET)
+  	{
+      LED2_On();
+	    LED1_Off();
+	  }else{
+      LED1_On();
+	    LED2_Off();
+	  }
 	}
 }
 
